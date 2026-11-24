@@ -24,7 +24,7 @@
 html.a11y .a11y-panel, .a11y-panel.is-open { display: block; }
 .a11y-panel { background: #fff; color: #000; border-bottom: 3px solid #000; font-family: "PT Sans", Arial, sans-serif; font-size: 18px; }
 .a11y-panel__inner { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; padding-top: 10px; padding-bottom: 10px; }
-.a11y-group { display: flex; align-items: center; gap: 6px; }
+.a11y-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .a11y-label { font-weight: 700; margin-right: 4px; }
 .a11y-btn { min-width: 40px; height: 40px; padding: 0 10px; border: 2px solid #000; background: #fff; color: #000;
   font: 700 18px "PT Sans", Arial, sans-serif; cursor: pointer; border-radius: 0; }
@@ -36,6 +36,13 @@ html.a11y .a11y-panel, .a11y-panel.is-open { display: block; }
 .a11y-sw--wb   { background: #000; color: #fff; }
 .a11y-sw--blue { background: #9dd1ff; color: #063462; border-color: #063462; }
 .a11y-off { margin-left: auto; }
+@media (max-width: 700px) {
+  .a11y-panel__inner { gap: 8px 14px; }
+  .a11y-label { width: 100%; }
+  .a11y-off { margin-left: 0; }
+  html.a11y .brand__title { font-size: 1.2rem; }
+  html.a11y .search-form { min-width: 0; }
+}
 
 /* ---------- Общие правила версии для слабовидящих ---------- */
 html.a11y { --fg: #000; --bg: #fff; --line-c: #000; --soft: #fff; }
@@ -103,10 +110,10 @@ html.a11y .tile img { position: static !important; height: auto !important; aspe
 html.a11y .tile__title { position: static !important; display: block; padding: 10px 14px; }
 
 /* укрупнённая сетка: меньше колонок, больше места для текста */
-html.a11y .news-grid, html.a11y .tiles { grid-template-columns: 1fr 1fr; }
-html.a11y .quick, html.a11y .steps, html.a11y .stats, html.a11y .facts { grid-template-columns: 1fr 1fr; }
+html.a11y .news-grid, html.a11y .tiles { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+html.a11y .quick, html.a11y .steps, html.a11y .stats, html.a11y .facts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 html.a11y .home-grid, html.a11y .article-layout, html.a11y .appeal-layout, html.a11y .cabinet,
-html.a11y .contacts-top, html.a11y .admin-cols { grid-template-columns: 1fr; }
+html.a11y .contacts-top, html.a11y .admin-cols { grid-template-columns: minmax(0, 1fr); }
 html.a11y .article-side { position: static; }
 html.a11y .list-item { grid-template-columns: 1fr; }
 html.a11y .list-item__body { padding: 16px 20px; }
@@ -118,7 +125,7 @@ html.a11y-noimg .article__figure, html.a11y-noimg .contacts-map img, html.a11y-n
 html.a11y-noimg .brand__logo img { display: none !important; }
 
 @media (max-width: 700px) {
-  html.a11y .news-grid, html.a11y .tiles, html.a11y .quick, html.a11y .steps, html.a11y .facts { grid-template-columns: 1fr; }
+  html.a11y .news-grid, html.a11y .tiles, html.a11y .quick, html.a11y .steps, html.a11y .facts, html.a11y .stats { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* панель настроек всегда сохраняет собственные контрастные цвета */
@@ -127,3 +134,6 @@ html.a11y .a11y-panel * { color: #000 !important; }
 html.a11y .a11y-panel .a11y-btn { background: #fff !important; border-color: #000 !important; }
 html.a11y .a11y-panel .a11y-sw--wb { background: #000 !important; color: #fff !important; }
 html.a11y .a11y-panel .a11y-sw--blue { background: #9dd1ff !important; color: #063462 !important; border-color: #063462 !important; }
+
+/* длинные слова и адреса не должны раздвигать страницу при крупном шрифте и большом интервале */
+html.a11y body { overflow-wrap: anywhere; }
