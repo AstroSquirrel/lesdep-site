@@ -1,0 +1,7 @@
+# Локальные настройки с паролем от базы данных
+config.php
+# Служебные файлы IDE и ОС
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
