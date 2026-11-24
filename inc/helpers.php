@@ -116,6 +116,22 @@ function csrf_check(): void
     }
 }
 
+/** Строковый параметр запроса (массивы и прочие типы отбрасываются) */
+function str_param(string $key, string $default = ''): string
+{
+    $v = $_POST[$key] ?? $_GET[$key] ?? $default;
+    return is_string($v) ? $v : $default;
+}
+
+/** Адрес возврата допускается только внутри сайта: /путь, без схемы, // и обратной косой черты */
+function safe_back(string $back): string
+{
+    if ($back === '' || !preg_match('#^/[A-Za-z0-9_\-./?=&%]*$#', $back) || str_starts_with($back, '//')) {
+        return '';
+    }
+    return $back;
+}
+
 function is_post(): bool
 {
     return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';

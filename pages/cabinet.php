@@ -10,9 +10,9 @@ if (is_post()) {
     if ($action === 'profile') {
         $d = [
             'login'     => $user['login'],
-            'email'     => trim((string)($_POST['email'] ?? '')),
-            'full_name' => trim((string)($_POST['full_name'] ?? '')),
-            'phone'     => trim((string)($_POST['phone'] ?? '')),
+            'email'     => trim(str_param('email')),
+            'full_name' => trim(str_param('full_name')),
+            'phone'     => trim(str_param('phone')),
         ];
         $errors = validate_user($d, false, (int)$user['id']);
         if (!$errors) {
@@ -24,14 +24,14 @@ if (is_post()) {
     } elseif ($action === 'password') {
         $row = q_one('SELECT password_hash FROM users WHERE id = ?', [$user['id']]);
         $d = ['login' => $user['login'], 'email' => $user['email'], 'full_name' => $user['full_name'],
-              'password' => (string)($_POST['password'] ?? ''), 'password2' => (string)($_POST['password2'] ?? '')];
-        if (!password_verify((string)($_POST['old_password'] ?? ''), $row['password_hash'])) {
+              'password' => str_param('password'), 'password2' => str_param('password2')];
+        if (!password_verify(str_param('old_password'), $row['password_hash'])) {
             $errors['old_password'] = 'Текущий пароль введён неверно.';
         } else {
             $errors = array_intersect_key(validate_user($d, true, (int)$user['id']), ['password' => 1, 'password2' => 1]);
         }
         if (!$errors) {
-            q_exec('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash($d['password'], PASSWORD_DEFAULT), $user['id']]);
+            q_exec('UPDATE users SET password_hash = ?, must_change_password = 0 WHERE id = ?', [password_hash($d['password'], PASSWORD_DEFAULT), $user['id']]);
             flash('success', 'Пароль изменён.');
             redirect('/cabinet');
         }

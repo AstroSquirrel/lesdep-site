@@ -2,6 +2,9 @@
 $err = fn($k) => isset($errors[$k]) ? '<span class="form__error">' . e($errors[$k]) . '</span>' : ''; ?>
 <div class="container">
     <h1 class="page-title">Личный кабинет</h1>
+    <?php if ($user['must_change_password']): ?>
+        <div class="alert alert--info" role="alert">Учётная запись создана сотрудником департамента с временным паролем. Задайте собственный пароль в форме «Смена пароля» — после этого станут доступны все разделы сайта.</div>
+    <?php endif; ?>
     <div class="cabinet">
         <section class="cabinet__main">
             <div class="block-head">

@@ -14,8 +14,8 @@ if (is_post()) {
     csrf_check();
     $action = $_POST['action'] ?? '';
     if ($action === 'save') {
-        $d = ['login' => $u['login'], 'email' => trim((string)($_POST['email'] ?? '')),
-              'full_name' => trim((string)($_POST['full_name'] ?? '')), 'phone' => trim((string)($_POST['phone'] ?? ''))];
+        $d = ['login' => $u['login'], 'email' => trim(str_param('email')),
+              'full_name' => trim(str_param('full_name')), 'phone' => trim(str_param('phone'))];
         $errors = validate_user($d, false, (int)$u['id']);
         $role = $u['role'];
         $active = $u['is_active'];
@@ -35,7 +35,7 @@ if (is_post()) {
         $u = array_merge($u, $d);
     } elseif ($action === 'reset') {
         $p = generate_password();
-        q_exec('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash($p, PASSWORD_DEFAULT), $u['id']]);
+        q_exec('UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?', [password_hash($p, PASSWORD_DEFAULT), $u['id']]);
         flash('success', "Новый временный пароль для «{$u['login']}»: $p");
         redirect('/admin/user', ['id' => $u['id']]);
     }

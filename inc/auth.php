@@ -15,7 +15,7 @@ function current_user(bool $reload = false): ?array
     if ($user === false || $reload) {
         $user = null;
         if (!empty($_SESSION['uid'])) {
-            $user = q_one('SELECT id, login, email, full_name, phone, role, is_active FROM users WHERE id = ?',
+            $user = q_one('SELECT id, login, email, full_name, phone, role, is_active, must_change_password FROM users WHERE id = ?',
                 [(int)$_SESSION['uid']]);
             if (!$user || !$user['is_active']) {
                 unset($_SESSION['uid']);
@@ -57,26 +57,39 @@ function require_login(string ...$roles): array
     return $u;
 }
 
-/** Проверка логина и пароля, вход */
-function attempt_login(string $login, string $password): bool
+/** IP-адрес посетителя */
+function client_ip(): string
 {
-    // защита от подбора пароля: не более 5 неудачных попыток за 10 минут в рамках сессии
-    $fails = array_filter($_SESSION['login_fails'] ?? [], fn($t) => $t > time() - 600);
-    if (count($fails) >= 5) {
-        return false;
+    return substr((string)($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'), 0, 45);
+}
+
+/** Превышено ли число неудачных попыток входа (5 за 10 минут по логину или по IP) */
+function login_blocked(string $login): bool
+{
+    $n = (int)q_val('SELECT COUNT(*) FROM login_attempts
+                     WHERE (login = ? OR ip = ?) AND created_at > NOW() - INTERVAL 10 MINUTE', [$login, client_ip()]);
+    return $n >= 5;
+}
+
+/** Проверка логина и пароля, вход. Возвращает 'ok', 'fail' или 'blocked'. */
+function attempt_login(string $login, string $password): string
+{
+    if (login_blocked($login)) {
+        return 'blocked';
     }
     $u = q_one('SELECT id, password_hash, is_active FROM users WHERE login = ? OR email = ?', [$login, $login]);
     if ($u && $u['is_active'] && password_verify($password, $u['password_hash'])) {
         session_regenerate_id(true);
         $_SESSION['uid'] = (int)$u['id'];
-        $_SESSION['login_fails'] = [];
-        current_user(true);
+        q_exec('DELETE FROM login_attempts WHERE login = ?', [$login]);
         q_exec('UPDATE users SET last_login_at = NOW() WHERE id = ?', [$u['id']]);
-        return true;
+        current_user(true);
+        return 'ok';
     }
-    $fails[] = time();
-    $_SESSION['login_fails'] = $fails;
-    return false;
+    q_exec('INSERT INTO login_attempts (login, ip) VALUES (?, ?)', [mb_substr($login, 0, 120), client_ip()]);
+    // старые записи журнала больше не нужны
+    q_exec('DELETE FROM login_attempts WHERE created_at < NOW() - INTERVAL 1 DAY');
+    return 'fail';
 }
 
 function logout(): void
@@ -122,10 +135,12 @@ function validate_user(array $d, bool $needPassword = true, ?int $exceptId = nul
 
 function create_user(array $d, string $role, ?int $createdBy): int
 {
-    q_exec('INSERT INTO users (login, email, password_hash, full_name, phone, role, created_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?)', [
+    // учётная запись, созданная сотрудником, получает временный пароль, который нужно сменить при первом входе
+    q_exec('INSERT INTO users (login, email, password_hash, full_name, phone, role, created_by, must_change_password)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
         $d['login'], $d['email'], password_hash($d['password'], PASSWORD_DEFAULT),
         trim($d['full_name']), ($d['phone'] ?? '') !== '' ? $d['phone'] : null, $role, $createdBy,
+        $createdBy !== null ? 1 : 0,
     ]);
     return (int)db()->lastInsertId();
 }

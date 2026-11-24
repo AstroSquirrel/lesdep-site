@@ -4,6 +4,7 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS login_attempts;
 DROP TABLE IF EXISTS appeal_messages;
 DROP TABLE IF EXISTS appeals;
 DROP TABLE IF EXISTS banners;
@@ -24,6 +25,7 @@ CREATE TABLE users (
     phone         VARCHAR(30)  NULL,
     role          ENUM('admin','employee','citizen') NOT NULL DEFAULT 'citizen',
     is_active     TINYINT(1)   NOT NULL DEFAULT 1,
+    must_change_password TINYINT(1) NOT NULL DEFAULT 0,   -- 1: временный пароль, требуется смена при входе
     created_by    INT UNSIGNED NULL,
     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login_at DATETIME     NULL,
@@ -97,4 +99,15 @@ CREATE TABLE appeal_messages (
     KEY ix_appeal (appeal_id),
     CONSTRAINT fk_msg_appeal FOREIGN KEY (appeal_id) REFERENCES appeals(id) ON DELETE CASCADE,
     CONSTRAINT fk_msg_user   FOREIGN KEY (user_id)   REFERENCES users(id)   ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Неудачные попытки входа (защита от подбора пароля: не более 5 попыток
+-- за 10 минут для одного логина или одного IP-адреса)
+CREATE TABLE login_attempts (
+    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    login      VARCHAR(120) NOT NULL,
+    ip         VARCHAR(45)  NOT NULL,
+    created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY ix_login (login, created_at),
+    KEY ix_ip (ip, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

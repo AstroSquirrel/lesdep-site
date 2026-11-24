@@ -38,6 +38,13 @@ $pages = [
 
 $first = $parts[0] ?? '';
 
+// пользователь с временным паролем может работать только в личном кабинете, пока не сменит пароль
+$u = current_user();
+if ($u && $u['must_change_password'] && !in_array($first, ['cabinet', 'logout'], true)) {
+    flash('info', 'Сначала смените временный пароль.');
+    redirect('/cabinet');
+}
+
 if (count($parts) <= 1 && isset($pages[$first])) {
     require ROOT . '/pages/' . $pages[$first] . '.php';
 } elseif (in_array($first, $sections, true) && count($parts) === 1) {
