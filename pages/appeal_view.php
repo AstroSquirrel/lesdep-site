@@ -20,7 +20,7 @@ if (is_post()) {
     $action = $_POST['action'] ?? 'reply';
 
     if ($action === 'status' && is_staff()) {
-        $st = (string)($_POST['status'] ?? '');
+        $st = str_param('status');
         if (in_array($st, ['new', 'in_work', 'answered', 'closed'], true)) {
             q_exec('UPDATE appeals SET status = ?, assigned_to = COALESCE(assigned_to, ?), updated_at = NOW() WHERE id = ?',
                 [$st, $user['id'], $appeal['id']]);
@@ -29,7 +29,7 @@ if (is_post()) {
         redirect('/appeals/' . $appeal['id']);
     }
 
-    $body = trim((string)($_POST['body'] ?? ''));
+    $body = trim(str_param('body'));
     if ($appeal['status'] === 'closed') {
         $error = 'Обращение закрыто, новые сообщения добавить нельзя.';
     } elseif (mb_strlen($body) < 2 || mb_strlen($body) > 5000) {

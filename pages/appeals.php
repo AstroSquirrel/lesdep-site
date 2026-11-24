@@ -13,7 +13,7 @@ if (is_post()) {
     $user = require_login();
     csrf_check();
     foreach (array_keys($d) as $k) {
-        $d[$k] = trim((string)($_POST[$k] ?? ''));
+        $d[$k] = trim(str_param($k));
     }
     if (!in_array($d['category'], appeal_categories(), true)) {
         $errors['category'] = 'Выберите тематику обращения.';

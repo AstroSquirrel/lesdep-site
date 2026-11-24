@@ -3,7 +3,7 @@
 
 require_login('admin', 'employee');
 
-$status = (string)($_GET['status'] ?? 'active');
+$status = str_param('status', 'active');
 $where = '';
 $params = [];
 if ($status === 'active') {

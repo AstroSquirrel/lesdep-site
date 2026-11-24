@@ -10,7 +10,7 @@ if ($id && !$a) {
     not_found();
 }
 if (!$a) {
-    $sec = q_one('SELECT id FROM sections WHERE slug = ?', [(string)($_GET['section'] ?? '')]);
+    $sec = q_one('SELECT id FROM sections WHERE slug = ?', [str_param('section')]);
     $a = ['id' => 0, 'section_id' => $sec['id'] ?? $sections[0]['id'], 'title' => '', 'slug' => '', 'summary' => '',
           'body' => '', 'image' => null, 'doc_meta' => '', 'is_published' => 1, 'published_at' => date('Y-m-d H:i:s')];
 }
@@ -19,13 +19,13 @@ $errors = [];
 if (is_post()) {
     csrf_check();
     $a['section_id']   = (int)($_POST['section_id'] ?? 0);
-    $a['title']        = trim((string)($_POST['title'] ?? ''));
-    $a['slug']         = trim((string)($_POST['slug'] ?? ''));
-    $a['summary']      = trim((string)($_POST['summary'] ?? ''));
-    $a['body']         = sanitize_html((string)($_POST['body'] ?? ''));
-    $a['doc_meta']     = trim((string)($_POST['doc_meta'] ?? ''));
+    $a['title']        = trim(str_param('title'));
+    $a['slug']         = trim(str_param('slug'));
+    $a['summary']      = trim(str_param('summary'));
+    $a['body']         = sanitize_html(str_param('body'));
+    $a['doc_meta']     = trim(str_param('doc_meta'));
     $a['is_published'] = !empty($_POST['is_published']) ? 1 : 0;
-    $date              = (string)($_POST['published_at'] ?? '');
+    $date              = str_param('published_at');
     $a['published_at'] = preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $date) ? str_replace('T', ' ', $date) . ':00' : date('Y-m-d H:i:s');
 
     if (!q_val('SELECT COUNT(*) FROM sections WHERE id = ?', [$a['section_id']])) {

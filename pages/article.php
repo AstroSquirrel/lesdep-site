@@ -18,7 +18,7 @@ q_exec('UPDATE articles SET views = views + 1 WHERE id = ?', [$article['id']]);
 
 // другие материалы этого раздела – для боковой навигации
 $siblings = q_all('SELECT title, slug FROM articles WHERE section_id = ? AND is_published = 1
-                   ORDER BY ' . ($sectionSlug === 'news' ? 'published_at DESC' : 'published_at ASC, id ASC') . ' LIMIT 8',
+                   ORDER BY ' . ($sectionSlug === 'news' ? 'published_at DESC' : 'published_at ASC, id ASC') ,
     [$section['id']]);
 
 render('article', [

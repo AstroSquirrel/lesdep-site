@@ -5,7 +5,7 @@
  * (в заголовке, аннотации или тексте). Совпадения в заголовке поднимают материал выше.
  */
 
-$q = trim((string)($_GET['q'] ?? ''));
+$q = trim(str_param('q'));
 $q = mb_substr(preg_replace('/\s+/u', ' ', $q), 0, 100);
 $results = [];
 $error = '';
@@ -35,12 +35,22 @@ if ($q !== '') {
             $scoreParams[] = $like;
             $scoreParams[] = $like;
         }
-        $sql = 'SELECT a.title, a.slug, a.summary, a.published_at, s.slug AS section_slug, s.title AS section_title, '
+        $sql = 'SELECT a.title, a.slug, a.summary, a.body, a.published_at, s.slug AS section_slug, s.title AS section_title, '
              . implode(' + ', $score) . ' AS score
                 FROM articles a JOIN sections s ON s.id = a.section_id
                 WHERE a.is_published = 1 AND ' . implode(' AND ', $where) . '
                 ORDER BY score DESC, a.published_at DESC LIMIT 50';
         $results = q_all($sql, array_merge($scoreParams, $params));
+        // LIKE ищет и внутри HTML-разметки, поэтому каждое совпадение перепроверяется по тексту без тегов
+        $results = array_values(array_filter($results, function (array $r) use ($words): bool {
+            $text = mb_strtolower($r['title'] . ' ' . $r['summary'] . ' ' . html_entity_decode(strip_tags($r['body'])));
+            foreach ($words as $w) {
+                if (!str_contains($text, $w)) {
+                    return false;
+                }
+            }
+            return true;
+        }));
     }
 }
 

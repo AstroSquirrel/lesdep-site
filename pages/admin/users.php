@@ -16,12 +16,12 @@ $d = ['full_name' => '', 'login' => '', 'email' => '', 'phone' => '', 'role' => 
 if (is_post()) {
     csrf_check();
     foreach (array_keys($d) as $k) {
-        $d[$k] = trim((string)($_POST[$k] ?? ''));
+        $d[$k] = trim(str_param($k));
     }
     if (!$isAdmin || !in_array($d['role'], ['admin', 'employee', 'citizen'], true)) {
         $d['role'] = 'citizen';
     }
-    $manual = trim((string)($_POST['password'] ?? ''));
+    $manual = trim(str_param('password'));
     $d['password'] = $d['password2'] = $manual !== '' ? $manual : generate_password();
     $errors = validate_user($d);
     if (!$errors) {

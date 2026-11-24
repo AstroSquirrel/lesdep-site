@@ -18,7 +18,7 @@ if (is_post()) {
 }
 
 $sections = q_all('SELECT * FROM sections ORDER BY sort');
-$filter = (string)($_GET['section'] ?? '');
+$filter = str_param('section');
 $params = [];
 $where = '';
 if ($filter !== '') {

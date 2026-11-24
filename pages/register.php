@@ -15,7 +15,7 @@ $errors = [];
 if (is_post()) {
     csrf_check();
     foreach (['login', 'email', 'full_name', 'phone', 'password', 'password2'] as $k) {
-        $d[$k] = trim((string)($_POST[$k] ?? ''));
+        $d[$k] = trim(str_param($k));
     }
     $errors = validate_user($d);
     if (empty($_POST['agree'])) {

@@ -90,7 +90,7 @@ $a11y     = a11y_classes();
         </a>
         <form class="search-form" action="<?= url('/search') ?>" method="get" role="search">
             <label class="visually-hidden" for="search-q">Поиск по сайту</label>
-            <input id="search-q" type="search" name="q" placeholder="Поиск по сайту" value="<?= e($_GET['q'] ?? '') ?>" minlength="3" required>
+            <input id="search-q" type="search" name="q" placeholder="Поиск по сайту" value="<?= e(str_param('q')) ?>" minlength="3" required>
             <button type="submit" aria-label="Найти">
                 <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M8.5 2a6.5 6.5 0 015.2 10.4l4.4 4.4-1.4 1.4-4.4-4.4A6.5 6.5 0 118.5 2zm0 2a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" fill="currentColor"/></svg>
             </button>
