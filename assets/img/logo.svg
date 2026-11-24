@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 74" width="64" height="74">
+  <title>Эмблема департамента лесного хозяйства Заречной области</title>
+  <path d="M32 2 L60 10 V36 C60 54 47 66 32 72 C17 66 4 54 4 36 V10 Z" fill="#1f5a33" stroke="#d9a441" stroke-width="2.5"/>
+  <path d="M32 9 L54 15 V36 C54 50 44 60 32 65 C20 60 10 50 10 36 V15 Z" fill="#2f7d47"/>
+  <path d="M10 46 C18 42 24 50 32 46 C40 42 46 50 54 46 L54 50 C46 54 40 46 32 50 C24 54 18 46 10 50 Z" fill="#9dd1ff" opacity=".9"/>
+  <g fill="#f4f1e4">
+    <path d="M32 14 L40 25 H36 L43 34 H38 L45 43 H19 L26 34 H21 L28 25 H24 Z"/>
+    <rect x="30.2" y="43" width="3.6" height="6"/>
+  </g>
+  <circle cx="45" cy="20" r="3" fill="#d9a441"/>
+</svg>
